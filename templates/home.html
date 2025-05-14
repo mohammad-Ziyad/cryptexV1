@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %} Home {% endblock %}
+
+{% block body %}
+<style>
+    .hero-section {
+        backdrop-filter: blur(10px);
+        background: rgba(27, 30, 53, 0.75);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .hero-section:hover {
+        transform: scale(1.01);
+    }
+
+    .hero-section h2 {
+        font-weight: 700;
+        color: #0f62fe;
+        font-size: 2.5rem;
+        text-shadow: 0 0 5px rgba(15, 98, 254, 0.3);
+    }
+
+    .hero-section p {
+        font-size: 1.25rem;
+        color: #d1d1d1;
+    }
+
+    .btn-outline-light {
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-outline-light:hover {
+        background-color: #0f62fe;
+        color: white;
+        border-color: #0f62fe;
+        box-shadow: 0 0 10px rgba(15, 98, 254, 0.5);
+        transform: scale(1.05);
+    }
+
+    .img-fluid {
+        border-radius: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .container {
+        animation: fadeIn 0.6s ease-out both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container text-center mt-5 hero-section">
+    <h2>Uncompromising security. Absolute control over your data.</h2>
+    <p class="lead">Engineered with advanced cryptographic defenses, ensuring privacy beyond limits.</p>
+</div>
+
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-6 text-light">
+            <h3 class="fw-bold">Your Privacy, Your Control –</h3>
+            <h4 class="fw-bold">Experience Secure, End-to-End Encrypted File Sharing with Absolute Data Protection.</h4>
+            <p>Seamlessly share files with trusted connections using advanced encryption. No third parties, no compromises—just complete control over your data, the way it should be.</p>
+            <a href="/CRYPTEX/about/" class="btn btn-outline-light">Learn More →</a>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="/static/images/security.png" alt="Security Image" class="img-fluid">
+        </div>
+    </div>
+</div>
+{% endblock %}

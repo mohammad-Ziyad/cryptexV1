@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}📥 Files Shared With Me{% endblock %}
+
+
+{% block body %}
+{% load string_filters %}
+
+
+<style>
+    .file-panel {
+        max-width: 900px;
+        margin: 4rem auto;
+        padding: 2rem;
+        background: rgba(27, 30, 53, 0.75);
+        border-radius: 20px;
+        box-shadow: 0 0 40px rgba(15, 98, 254, 0.15);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #fff;
+        animation: fadeIn 0.8s ease-out both;
+    }
+
+    .file-panel h2 {
+        font-size: 2.4rem;
+        font-weight: 700;
+        text-align: center;
+        color: #0f62fe;
+        text-shadow: 0 0 20px rgba(15, 98, 254, 0.4);
+        margin-bottom: 2rem;
+        letter-spacing: 0.5px;
+    }
+
+    .file-item {
+        background: rgba(255, 255, 255, 0.035);
+        padding: 1.2rem 1.5rem;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 1.2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .file-item:hover {
+        background: rgba(15, 98, 254, 0.1);
+        transform: scale(1.01);
+        box-shadow: 0 0 15px rgba(15, 98, 254, 0.25);
+    }
+
+    .file-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .file-header strong {
+        font-size: 1.1rem;
+        color: #ffffff;
+    }
+
+    .file-header a {
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .file-header a:hover {
+        text-decoration: underline;
+        color: #0f62fe;
+    }
+
+    .file-desc {
+        margin-top: 0.5rem;
+        color: #bbb;
+        font-style: italic;
+    }
+
+    .file-meta {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .no-files-msg {
+        text-align: center;
+        color: #aaa;
+        margin-top: 2rem;
+        font-style: italic;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="file-panel">
+    <h2>📥 Files Shared With Me</h2>
+
+    {% if received_files %}
+        {% for file in received_files %}
+        <div class="file-item">
+            {% if file.file.name|endswith:".pdf" %}
+            <span class="badge bg-info">📄 PDF</span>
+            {% elif file.file.name|endswith:".zip" %}
+              <span class="badge bg-dark">🗜️ ZIP Archive</span>
+            {% elif file.file.name|endswith:".png" or file.file.name|endswith:".jpg" %}
+              <span class="badge bg-success">🖼️ Image</span>
+            {% endif %}
+
+            {% if file.file.name|endswith:".exe" or file.file.name|endswith:".bat" or file.file.name|endswith:".js" %}
+                <span class="badge bg-danger">⚠️ Executable File</span>
+                {% endif %}
+
+
+
+                {% if file.file|is_large %}
+                <span class="badge bg-danger">🔥 Large File</span>
+              {% endif %}
+              
+
+
+          <div class="file-header">
+              <strong>From: {{ file.sender.username }}</strong>
+              {% if file.id %}
+              <a href="{% url 'download_file' file.id %}" target="_blank">
+                {{ file.file.name|cut:"secure_uploads/"|truncatechars:50 }}
+              </a>
+            {% else %}
+              <span class="text-danger">⛔️ File not ready</span>
+            {% endif %}
+            
+          </div>
+          {% if file.description %}
+              <div class="file-desc">“{{ file.description }}”</div>
+          {% endif %}
+          <div class="file-meta">
+              Uploaded at: {{ file.uploaded_at|date:"Y-m-d H:i:s" }}
+          </div>
+          <div class="file-meta">
+              ⏳ Expires in: <span class="expires-countdown" data-expiration="{{ file.expired_at|date:'c' }}"></span>
+
+          </div>
+
+          <div class="file-meta debug">
+            DEBUG: {{ file.expired_at }}
+        </div>
+        {% if file.expired_at|is_expired %}
+          <span class="badge bg-danger">Expired</span>
+            {% endif %}
+
+      </div>
+      
+        {% endfor %}
+    {% else %}
+        <div class="no-files-msg">No files received yet — but you’re ready for them ✨</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+<script>
+  function updateCountdowns() {
+      const spans = document.querySelectorAll('.expires-countdown');
+  
+      spans.forEach(span => {
+          const rawTime = span.dataset.expiration;
+          if (!rawTime) {
+              span.textContent = "❓ Missing expiration";
+              return;
+          }
+  
+          const expiration = new Date(rawTime);
+          const now = new Date();
+  
+          if (isNaN(expiration.getTime())) {
+              span.textContent = "⚠️ Invalid expiration";
+              return;
+          }
+  
+          const diffMs = expiration - now;
+  
+          if (diffMs <= 0) {
+              span.textContent = "Expired";
+              span.style.color = "#ff4d4d";
+              return;
+          }
+  
+          const minutes = Math.floor(diffMs / 60000);
+          const seconds = Math.floor((diffMs % 60000) / 1000);
+  
+          span.textContent = `${minutes}m ${seconds < 10 ? '0' : ''}${seconds}s`;
+          if (minutes === 0 && seconds < 60) {
+              span.style.color = "#ffae00";
+              span.style.fontWeight = "bold";
+          }
+      });
+  }
+  
+  // Initial run + every second
+  document.addEventListener('DOMContentLoaded', updateCountdowns);
+  setInterval(updateCountdowns, 1000);
+  </script>
+  

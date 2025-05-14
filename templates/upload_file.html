@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %} Upload Files {% endblock %}
+{% block body %}
+<style>
+  :root {
+    --primary-color: #0f62fe;
+    --secondary-color: #1b1e35;
+    --accent-color: #262626;
+    --bg-color: #0b0e21;
+    --text-color: #ffffff;
+    --file-bg: #1f1f1f;
+    --file-border: #3d3d3d;
+    --hover-color: #0353e9;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .upload-container {
+    backdrop-filter: blur(10px);
+    background: rgba(27, 30, 53, 0.85);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    max-width: 720px;
+    margin: 3rem auto;
+    animation: fadeIn 0.6s ease-out both;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    text-align: center;
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(15, 98, 254, 0.4);
+  }
+
+  label,
+  select {
+    display: block;
+    width: 100%;
+    margin-bottom: 1.2rem;
+    font-size: 1rem;
+  }
+
+  select {
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--file-border);
+    background-color: var(--file-bg);
+    color: var(--text-color);
+    font-weight: 500;
+    appearance: none;
+    transition: border 0.3s ease;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(15, 98, 254, 0.3);
+  }
+
+  .dropzone {
+    border: 2px dashed var(--primary-color);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: #aaa;
+    cursor: pointer;
+    background-color: var(--accent-color);
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+  }
+
+  .dropzone.dragover {
+    background-color: var(--primary-color);
+    border-color: var(--hover-color);
+    color: white;
+    box-shadow: 0 0 15px rgba(15, 98, 254, 0.4);
+  }
+
+  .file-list {
+    margin-top: 1.5rem;
+  }
+
+  .file-list ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .file-list li {
+    background-color: var(--file-bg);
+    border: 1px solid var(--file-border);
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .remove-btn {
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+
+  .remove-btn:hover {
+    color: #ff6666;
+    text-shadow: 0 0 8px rgba(255, 77, 77, 0.8);
+  }
+
+  button[type="submit"] {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  button[type="submit"]:hover {
+    background-color: var(--hover-color);
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(15, 98, 254, 0.5);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="upload-container">
+  <h2>Upload Multiple Files</h2>
+  <form id="upload-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label for="recipient">Select recipient:</label>
+    <select name="recipient" id="recipient" required>
+      {% for user in users %}
+        <option value="{{ user.id }}">{{ user.username }}</option>
+      {% endfor %}
+    </select>
+
+    <div id="dropzone" class="dropzone">
+      Drag and drop files here or click to select
+      <input id="file-input" type="file" name="files" multiple hidden>
+    </div>
+
+    <div class="file-list" id="file-list"></div>
+    <button type="submit">Upload</button>
+  </form>
+</div>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('file-input');
+  const fileList = document.getElementById('file-list');
+  let selectedFiles = [];
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('dragover');
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    addFiles(e.dataTransfer.files);
+  });
+
+  function addFiles(files) {
+    for (let i = 0; i < files.length; i++) {
+      selectedFiles.push(files[i]);
+    }
+    renderFileList();
+  }
+
+  function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderFileList();
+  }
+
+  function renderFileList() {
+    fileList.innerHTML = '';
+    if (selectedFiles.length > 0) {
+      const ul = document.createElement('ul');
+      selectedFiles.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>${file.name}</span>
+          <button type="button" class="remove-btn" onclick="removeFile(${index})">×</button>
+        `;
+        ul.appendChild(li);
+      });
+      fileList.appendChild(ul);
+    }
+
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach(file => dataTransfer.items.add(file));
+    fileInput.files = dataTransfer.files;
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Upload Successful!</h2>
+    <p>Your file has been securely uploaded.</p>
+    <p><strong>File Path:</strong> {{ file_url }}</p>
+    <a href="{% url 'upload_file' %}">Upload Another File</a>
+</div>
+{% endblock content %}

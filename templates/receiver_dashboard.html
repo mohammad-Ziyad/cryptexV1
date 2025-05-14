@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% load string_filters %}
+{% block title %}📥 Files Shared With Me{% endblock %}
+
+{% block body %}
+<style>
+    .file-panel {
+        max-width: 900px;
+        margin: 4rem auto;
+        padding: 2rem;
+        background: rgba(27, 30, 53, 0.75);
+        border-radius: 20px;
+        box-shadow: 0 0 40px rgba(15, 98, 254, 0.15);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #fff;
+        animation: fadeIn 0.8s ease-out both;
+    }
+
+    .file-item {
+        background: rgba(255, 255, 255, 0.035);
+        padding: 1.2rem 1.5rem;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 1.2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+
+    .file-item:hover {
+        background: rgba(15, 98, 254, 0.1);
+        transform: scale(1.01);
+        box-shadow: 0 0 15px rgba(15, 98, 254, 0.25);
+    }
+
+    .file-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .file-header strong {
+        font-size: 1.1rem;
+    }
+
+    .file-desc {
+        margin-top: 0.5rem;
+        color: #bbb;
+        font-style: italic;
+    }
+
+    .file-meta {
+        margin-top: 0.4rem;
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .alert-expiring {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #ffae00;
+        color: black;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        border-radius: 10px;
+        font-weight: bold;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .live-alert {
+    animation: pulse 1s infinite alternate;
+    }
+        @keyframes pulse {
+    from { opacity: 0.7; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.05); }
+        }
+
+
+    .badge {
+        display: inline-block;
+        padding: 0.35em 0.7em;
+        font-size: 0.75em;
+        font-weight: bold;
+        border-radius: 0.5rem;
+        margin-right: 0.5rem;
+    }
+
+    .bg-info { background: #0f62fe; color: white; }
+    .bg-dark { background: #333; color: white; }
+    .bg-success { background: #28a745; color: white; }
+    .bg-danger { background: #dc3545; color: white; }
+</style>
+
+<div class="file-panel">
+    <h2>📥 Files Shared With Me</h2>
+
+    {% if received_files %}
+        {% for item in received_files %}
+        <div class="file-item"
+            data-file-id="{{ item.file.id }}"
+            data-downloaded="{{ item.file.is_downloaded|yesno:'true,false' }}"
+            data-expired="{{ item.file.expired_at|is_expired }}">
+            {% if item.file.file.name|endswith:".pdf" %}
+                <span class="badge bg-info">📄 PDF</span>
+            {% elif item.file.file.name|endswith:".zip" %}
+                <span class="badge bg-dark">🗜️ ZIP</span>
+            {% elif item.file.file.name|endswith:".png" or item.file.file.name|endswith:".jpg" %}
+                <span class="badge bg-success">🖼️ Image</span>
+            {% elif item.file.file.name|endswith:".exe" or item.file.file.name|endswith:".bat" or item.file.file.name|endswith:".js" %}
+                <span class="badge bg-danger">⚠️ Executable</span>
+            {% endif %}
+
+            {% if item.file.file|is_large %}
+                <span class="badge bg-danger">🔥 Large File</span>
+            {% endif %}
+
+            <div class="file-header">
+                <strong>From: {{ item.file.sender.username }}</strong>
+                
+                {% if not item.file.is_downloaded %}
+                <a href="{% url 'download_file' item.file.id %}" target="_blank">
+                    {{ item.original_filename|default:"Download" }}
+                </a>
+                
+                {% else %}
+                <span class="badge bg-warning text-dark">🛑 Downloaded</span>
+                {% endif %}
+            </div>
+            
+
+            {% if item.decrypted_description %}
+             <div class="file-desc">“{{ item.decrypted_description }}”</div>
+            {% elif item.file.encrypted_description %}
+             <div class="file-desc text-warning">⚠️ Description could not be decrypted</div>
+            {% else %}
+  <div class="file-desc">📝 No description provided.</div>
+{% endif %}
+
+
+            <div class="file-meta">
+                Uploaded at: {{ item.file.uploaded_at|date:"Y-m-d H:i:s" }}
+            </div>
+
+            <div class="file-meta">
+                ⏳ Expires in: 
+                    <span class="expires-countdown" data-expiration="{{ item.file.expired_at|date:'c' }}">⏳ Loading...</span>
+
+            </div>
+            
+
+            {% if item.file.expired_at|is_expired %}
+                <span class="badge bg-danger">Expired</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-files-msg">No files received yet — but you’re ready for them ✨</div>
+    {% endif %}
+
+</div> <!-- 🔚 Closes .file-panel for "Files Shared With Me" -->
+
+<div class="file-panel mt-5">
+    <h2 class="mt-5">📁 Archived Downloads</h2>
+
+    {% if archived_files %}
+    {% for item in archived_files %}
+        <div class="file-item" style="opacity: 0.6;">
+            <div class="file-header">
+                <strong>From: {{ item.file.sender.username }}</strong>
+                <span class="badge bg-warning text-dark">🛑 Downloaded</span>
+            </div>
+
+            <div class="file-meta">
+                File: <span style="margin-right: 0.3rem;">📦</span>{{ item.original_filename|default:"Unnamed file" }}
+            </div>
+
+            <div class="file-desc">
+                “{{ item.decrypted_description|default:'No description.' }}”
+            </div>
+
+            <div class="file-meta">
+                Uploaded at: {{ item.file.uploaded_at|date:"Y-m-d H:i:s" }}
+            </div>
+
+            <div class="file-meta">
+                ⏳ Expired at: {{ item.file.expired_at|date:"Y-m-d H:i:s" }}
+            </div>
+        </div>
+    {% endfor %}
+    {% else %}
+        <div class="no-files-msg">No archived files yet 🫙</div>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+
+
+ <script>
+
+function updateCountdowns() {
+  const spans = document.querySelectorAll('.expires-countdown');
+
+  spans.forEach(span => {
+    const parent = span.closest('.file-item');
+    const isDownloaded = parent?.dataset.downloaded === "true";
+    const isExpired = parent?.dataset.expired === "True"; // Django uses "True"/"False"
+
+    if (isDownloaded || isExpired) {
+      span.textContent = isExpired ? "Expired" : "🛑 Downloaded";
+      span.style.color = "#94a3b8";
+      return;
+    }
+
+    const rawTime = span.dataset.expiration;
+    if (!rawTime) {
+      span.textContent = "❓ Missing expiration";
+      return;
+    }
+
+    const expiration = new Date(rawTime);
+    const now = new Date();
+    const diffMs = expiration - now;
+
+    if (diffMs <= 0) {
+      span.textContent = "Expired";
+      span.style.color = "#f87171";
+      parent.dataset.expired = "True"; // Update state
+      return;
+    }
+
+    const minutes = Math.floor(diffMs / 60000);
+    const seconds = Math.floor((diffMs % 60000) / 1000);
+    span.textContent = `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+
+    if (minutes === 0 && seconds < 30) {
+      span.style.color = "#facc15";
+      span.style.fontWeight = "bold";
+
+      if (!parent.querySelector('.live-alert')) {
+        const alert = document.createElement('div');
+        alert.className = 'live-alert';
+        alert.style.color = '#ffc107';
+        alert.style.marginTop = '0.5rem';
+        alert.style.fontWeight = 'bold';
+        alert.textContent = '⚠️ Less than 30 seconds left!';
+        parent.appendChild(alert);
+      }
+    }
+  });
+}
+
+// ✅ Attach listeners correctly!
+document.addEventListener('DOMContentLoaded', () => {
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+
+  // ✅ Listen for file download to mark it as downloaded
+  document.querySelectorAll('.file-header a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const parent = e.target.closest('.file-item');
+      if (parent) {
+        parent.dataset.downloaded = "true";
+      }
+    });
+  });
+});
+
+
+</script>
+
+
+
+

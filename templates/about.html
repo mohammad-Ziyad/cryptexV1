@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %} About Us {% endblock %}
+
+{% block body %}
+<style>
+    .about-section {
+        backdrop-filter: blur(10px);
+        background: rgba(27, 30, 53, 0.75);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .about-section:hover {
+        transform: scale(1.01);
+    }
+
+    .about-section h2 {
+        font-weight: 700;
+        color: #0f62fe;
+        font-size: 2.3rem;
+        text-shadow: 0 0 6px rgba(15, 98, 254, 0.4);
+    }
+
+    .about-section p {
+        font-size: 1.1rem;
+        color: #d6d6d6;
+    }
+
+    .img-fluid {
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+    }
+
+    .img-fluid:hover {
+        transform: scale(1.02);
+    }
+
+    .row {
+        margin-bottom: 2.5rem;
+        animation: fadeIn 0.6s ease-out both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 767px) {
+        .row .col-md-6 {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+
+<div class="container text-center mt-5 about-section">
+    <h2 class="fw-bold">Our Cutting-Edge Technology for Secure File Sharing</h2>
+
+    <div class="row mt-4 align-items-center">
+        <div class="col-md-6 text-light">
+            <p>We use a hybrid encryption approach, combining RSA for secure key exchange and AES-256 for robust file encryption. This ensures that sensitive data remains secure during both transfer and storage.</p>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/icons/encryption.png" alt="Encryption Icon" class="img-fluid">
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <img src="/static/icons/privacy.png" alt="Privacy Icon" class="img-fluid">
+        </div>
+        <div class="col-md-6 text-light">
+            <p>This ensures that files are encrypted on the sender’s side and only decrypted by the intended recipient, ensuring privacy during the entire file-sharing process.</p>
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6 text-light">
+            <p>This adds an extra layer of security by requiring two methods of verification before granting access to sensitive data or actions.</p>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/icons/verification.png" alt="Verification Icon" class="img-fluid">
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <img src="/static/icons/parallel.png" alt="Parallel Computing Icon" class="img-fluid">
+        </div>
+        <div class="col-md-6 text-light">
+            <p>We optimize file processing through multi-threading and parallel computing, minimizing delays and improving efficiency during file transfers.</p>
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6 text-light">
+            <p>File-sharing interactions are sandboxed, ensuring they are isolated from other systems and reducing potential risks from malicious activity.</p>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/icons/sandbox.png" alt="Sandbox Icon" class="img-fluid">
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <img src="/static/icons/ai.png" alt="AI Security Icon" class="img-fluid">
+        </div>
+        <div class="col-md-6 text-light">
+            <p>Using machine learning algorithms, we detect unusual access patterns and potential phishing attempts, enhancing our system’s ability to prevent unauthorized access.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

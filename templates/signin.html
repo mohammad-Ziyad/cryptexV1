@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Sign In {% endblock %}
+
+{% block body %}
+<style>
+    .login-glass {
+        backdrop-filter: blur(10px);
+        background: rgba(27, 30, 53, 0.75);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .login-glass:hover {
+        transform: scale(1.01);
+    }
+
+    .login-glass h2 {
+        color: #ffffff;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .btn-success {
+        background-color: #0f62fe;
+        border-color: #0f62fe;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #0353e9;
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(15, 98, 254, 0.5);
+    }
+
+    .intro-text h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    }
+
+    .intro-text p {
+        color: #cccccc;
+        font-size: 1rem;
+    }
+
+    .container {
+        animation: fadeIn 0.5s ease-out both;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container d-flex flex-column justify-content-center align-items-center" style="height: 100vh;">
+    <div class="text-center intro-text mb-4">
+        <h3>Privacy isn't a feature—it's the foundation.</h3>
+        <p>Securely share files with cryptographic precision and absolute control.</p>
+    </div>
+    <div class="login-glass" style="width: 400px;">
+        <h2 class="text-center">Login your Account</h2>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {% for e in error %}
+                <p>{{ e }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.username|as_crispy_field }}
+            {{ form.password|as_crispy_field }}
+            <button type="submit" class="btn btn-success w-100">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

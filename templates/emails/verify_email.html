@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Cryptex Account</title>
+    <style>
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 90% !important;
+                padding: 20px !important;
+            }
+        }
+    </style>
+</head>
+<body style="font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; margin: 0; padding: 40px 0; color: #333;">
+    <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 12px; padding: 40px 30px; box-shadow: 0 4px 25px rgba(0,0,0,0.1);" class="container">
+        <div style="text-align: center;">
+            <img src="https://i.imgur.com/YOUR_CRYPTEX_LOGO.png" alt="Cryptex Logo" width="120" style="margin-bottom: 20px;" />
+            <h2 style="color: #0f62fe; margin-bottom: 10px;">Verify Your Cryptex Account</h2>
+        </div>
+
+        <p>Hi <strong>{{ user.username }}</strong>,</p>
+        <p>Thank you for registering with <strong>Cryptex</strong> — the secure file sharing platform 🛡️</p>
+        <p>To activate your account, please confirm your email address by clicking the button below:</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ verify_url }}" style="background-color: #0f62fe; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: inline-block;">Verify My Account</a>
+        </div>
+
+        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; font-size: 0.95em; background: #f5f5f5; padding: 10px; border-radius: 5px;">
+            {{ verify_url }}
+        </p>
+
+        <p style="margin-top: 40px; font-size: 0.85em; color: #888;">If you didn’t sign up for Cryptex, you can safely ignore this email.</p>
+        <p style="font-size: 0.85em; color: #888;">— The Cryptex Security Team</p>
+    </div>
+</body>
+</html>
